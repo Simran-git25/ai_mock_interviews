@@ -229,6 +229,160 @@ export const dummyInterviews: Interview[] = [
   },
 ];
 
-// jsm_interview_prep.ts
+
+export const generator = {
+  name: "Untitled Workflow",
+  nodes: [
+    {
+      name: "start_node",
+      type: "start",
+      metadata: { position: { x: 0, y: 0 } }
+    },
+    {
+      name: "say",
+      type: "say",
+      metadata: { position: { x: -43.13, y: 189.37 } },
+      prompt: "",
+      exact: "Hello ,{{username}} ! Let's prepare your interview. I'll\nask you a few questions and generate a perfect interview just for you. Are you ready?"
+    },
+    {
+      name: "conversation_1748534881000",
+      type: "conversation",
+      metadata: { position: { x: -43.13, y: 439.37 } },
+      prompt: "Required all information",
+      model: {
+        model: "gpt-4o",
+        provider: "openai",
+        maxTokens: 1000,
+        temperature: 0.7
+      },
+      voice: {
+        model: "aura-2",
+        voiceId: "thalia",
+        provider: "deepgram",
+        chunkPlan: {
+          enabled: true,
+          formatPlan: { enabled: true, replacements: [], numberToDigitsCutoff: 2025 },
+          minCharacters: 30,
+          punctuationBoundaries: [".", "!", "?", ";"]
+        },
+        mipOptOut: false,
+        cachingEnabled: true
+      },
+      variableExtractionPlan: {
+        output: [
+          { type: "string", title: "role", description: "What role would you like to train for?", enum: [] },
+          { type: "string", title: "type", description: "Are you aiming for a technical , behavioral or mixed interview?", enum: [] },
+          { type: "string", title: "level", description: "The Job experience level", enum: [] },
+          { type: "string", title: "techstack", description: "A list of technologies to cover during the job interview.", enum: [] },
+          { type: "string", title: "amount", description: "How many questions would you like to generate?", enum: [] }
+        ]
+      },
+      messagePlan: { firstMessage: "" }
+    },
+    {
+      name: "API Request",
+      type: "tool",
+      metadata: { position: { x: -43.13, y: 689.37 } },
+      tool: {
+        url: "https://ai-mock-interviews-two-xi.vercel.app/api/vapi/generate",
+        method: "POST",
+        type: "apiRequest",
+        body: {
+          type: "object",
+          required: ["role", "type", "level", "techstack", "amount", "userid"],
+          properties: {
+            role: { type: "string", value: "role", description: "" },
+            type: { type: "string", value: "type", description: "" },
+            level: { type: "string", value: "level", description: "" },
+            amount: { type: "string", value: "amount", description: "" },
+            userid: { type: "string", value: "userid", description: "" },
+            techstack: { type: "string", value: "techstack", description: "" }
+          }
+        },
+        function: {
+          name: "untitled_tool",
+          parameters: {
+            type: "object",
+            required: [],
+            properties: {}
+          }
+        }
+      }
+    },
+    {
+      name: "conversation_1748538433313",
+      type: "conversation",
+      metadata: { position: { x: -43.13, y: 939.37 } },
+      prompt: "Say that the interview has been generated and thank the user for the call ",
+      model: {
+        model: "gpt-4o",
+        provider: "openai",
+        maxTokens: 1000,
+        temperature: 0.7
+      },
+      voice: {
+        model: "aura-2",
+        voiceId: "thalia",
+        provider: "deepgram",
+        chunkPlan: {
+          enabled: true,
+          formatPlan: { enabled: true, replacements: [], numberToDigitsCutoff: 2025 },
+          minCharacters: 30,
+          punctuationBoundaries: [".", "!", "?", ";"]
+        },
+        mipOptOut: false,
+        cachingEnabled: true
+      },
+      messagePlan: { firstMessage: "" }
+    },
+    {
+      name: "conversation_1748538581384",
+      type: "conversation",
+      metadata: { position: { x: -43.13, y: 1189.37 } },
+      prompt: "Ask the generated questions from the user and record answer of each question",
+      model: {
+        model: "gpt-4o",
+        provider: "openai",
+        maxTokens: 1000,
+        temperature: 0.7
+      },
+      messagePlan: { firstMessage: "" }
+    },
+    {
+      name: "conversation_1748538700529",
+      type: "conversation",
+      metadata: { position: { x: -43.13, y: 1439.37 } },
+      prompt: "Make a analysis based on user performance and give them feedback on that interview of each question",
+      model: {
+        model: "gpt-4o",
+        provider: "openai",
+        maxTokens: 1000,
+        temperature: 0.7
+      },
+      messagePlan: { firstMessage: "" }
+    },
+    {
+      name: "hangup_1748538815707",
+      type: "tool",
+      metadata: { position: { x: 48.87, y: 1689.37 } },
+      tool: {
+        type: "endCall"
+      }
+    }
+  ],
+  edges: [
+    { from: "start_node", to: "say" },
+    { from: "say", to: "conversation_1748534881000", condition: { type: "ai", prompt: "if user provide their username" } },
+    { from: "conversation_1748534881000", to: "API Request", condition: { type: "ai", prompt: "if the user provided all the information" } },
+    { from: "API Request", to: "conversation_1748538433313", condition: { type: "ai", prompt: "if the user given all information" } },
+    { from: "conversation_1748538433313", to: "conversation_1748538581384", condition: { type: "ai", prompt: "" } },
+    { from: "conversation_1748538581384", to: "conversation_1748538700529", condition: { type: "ai", prompt: "After user answer all questions" } },
+    { from: "conversation_1748538700529", to: "hangup_1748538815707", condition: { type: "ai", prompt: "if user said yes" } }
+  ]
+};
+
+export default generator;
+
 
 
